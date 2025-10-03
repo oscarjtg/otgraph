@@ -2,15 +2,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class CuboidPlot:
-    def __init__(self, x_top, y_top, arr_top, x_front, y_front, arr_front, x_side, y_side, arr_side):
+    def __init__(self, x_top, y_top, arr_top, x_front, z_front, arr_front, y_side, z_side, arr_side):
         self.x_top = x_top
         self.y_top = y_top
         self.arr_top = arr_top
         self.x_front = x_front
-        self.y_front = y_front
+        self.z_front = z_front
         self.arr_front = arr_front
-        self.x_side = x_side
         self.y_side = y_side
+        self.z_side = z_side
         self.arr_side = arr_side
 
     #########
@@ -75,8 +75,8 @@ class CuboidPlot:
         """
         # Find dimensions of plot from the input arrays.
         Lx = self.x_front[-1] - self.x_front[0]
-        Ly = self.x_side[-1] - self.x_side[0]
-        Lz = abs(self.y_front[-1] - self.y_front[0])
+        Ly = self.y_side[-1] - self.y_side[0]
+        Lz = abs(self.z_front[-1] - self.z_front[0])
 
         def transform_coordinates(x, y, z, X, Y, Z, L=plot_L, W=plot_W, H=plot_H, alpha_deg=alpha_deg):
             """
@@ -156,7 +156,7 @@ class CuboidPlot:
         plt.colorbar(pmesh_top, label=self.cbar_label_top)
 
         # Plot front side.
-        X_front, Z_front = np.meshgrid(self.x_front, self.y_front)
+        X_front, Z_front = np.meshgrid(self.x_front, self.z_front)
         y_front = -Ly/2
         XX_front, YY_front = transform_coordinates(X_front, y_front, Z_front, Lx, Ly, Lz)
         if self.centred_front:
@@ -167,7 +167,7 @@ class CuboidPlot:
         plt.colorbar(pmesh_front, label=self.cbar_label_front)
 
         # Plot side.
-        Y_side, Z_side = np.meshgrid(self.x_side, self.y_side)
+        Y_side, Z_side = np.meshgrid(self.y_side, self.z_side)
         XX_side, YY_side = transform_coordinates(Lx, Y_side, Z_side, Lx, Ly, Lz)
         if self.centred_side:
             umax = self.vmax_factor_side * np.max(np.abs(self.arr_side))
