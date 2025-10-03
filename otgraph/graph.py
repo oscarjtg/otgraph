@@ -13,25 +13,59 @@ class CuboidPlot:
         self.y_side = y_side
         self.arr_side = arr_side
 
+    #########
+    ## Colourmaps for the three faces.
+    #########
     cmap_front = "Purples"
     cmap_top = "BrBG"
     cmap_side = "RdBu_r"
 
-    vmax_factor_top = 1.5
+    #########
+    ## Factor by which to multiply the true vmax if plotting anomalies centred on zero.
+    #########
+    vmax_factor_top = 1.0
     vmax_factor_front = 1.0
     vmax_factor_side = 1.0
 
+    #########
+    ## Set colorbar limits such that the central colour of the colormap
+    ## is centred on zero.
+    ## This option is appropriate for plotting data representing residuals or anomalies.
+    #########
     centred_front = True
     centred_side = True
     centred_top = True
 
+    #########
+    ## The labels for each of the colorbars.
+    #########
     cbar_label_top = "cbar_label_top"
     cbar_label_front = "cbar_label_front"
     cbar_label_side = "cbar_label_side"
 
     def draw_plot(self, plot_L=12, plot_W=2, plot_H=2, alpha_deg=45):
         """
-        Draws plot.
+        Draws plot. Plot is shaped like a cuboid. 
+        
+        On the top face of the cuboid, we plot the 2d numpy array called `arr_top` 
+        on a grid defined by the 1d numpy arrays called `x_top` and `y_top`.
+
+        The arrays plotted on the front and side (right hand side) faces of the cuboid
+        follow a similar naming convention, but with `front` or `side` instead of `top`.
+
+        Parameters
+        plot_L (float)
+            The horizontal length of the cuboid drawn on the figure
+
+        plot_W (float)
+            The diagnoal (projection of out-of-plane direction) length 
+            of the cuboid drawn on the figure
+
+        plot_H (float)
+            The vertical height of the cuboid drawn on the figure
+
+        alpha_deg (float)
+            The angle that the diagonal makes with the vertical
 
         Returns
         -------
@@ -163,10 +197,13 @@ class CuboidPlot:
         ax.text(0, -plot_H-1, "0")
         ax.text(plot_L, -plot_H-1, f"{Lx}")
 
-        ax.text(-1, -plot_H, f"{Lz}")
+        ax.text(-1.5, -plot_H, f"{Lz}")
 
         ax.text(1, plot_H, f"{Ly}")
 
         plt.tight_layout()
         return fig
+    
+
+
         
