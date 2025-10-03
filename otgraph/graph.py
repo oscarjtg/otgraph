@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
 
 class CuboidPlot:
@@ -42,6 +43,11 @@ class CuboidPlot:
     cbar_label_top = "cbar_label_top"
     cbar_label_front = "cbar_label_front"
     cbar_label_side = "cbar_label_side"
+
+    ########
+    ## Set the title
+    ########
+    plot_title = "plot title"
 
     def draw_plot(self, plot_L=12, plot_W=2, plot_H=2, alpha_deg=45):
         """
@@ -153,7 +159,8 @@ class CuboidPlot:
         else:
             pmesh_top = ax.pcolormesh(XX_top, YY_top, self.arr_top, cmap=self.cmap_top)
 
-        plt.colorbar(pmesh_top, label=self.cbar_label_top)
+        #plt.colorbar(pmesh_top, label=self.cbar_label_top, fraction=0.03, pad=0.02)
+        #fig.colorbar(pmesh_top, ax=ax, orientation='horizontal', label=self.cbar_label_top)#, #fraction=0.046, pad=0.04)
 
         # Plot front side.
         X_front, Z_front = np.meshgrid(self.x_front, self.z_front)
@@ -164,7 +171,8 @@ class CuboidPlot:
             pmesh_front = ax.pcolormesh(XX_front, YY_front, self.arr_front, cmap=self.cmap_front, vmin=-umax, vmax=umax)
         else:
             pmesh_front = ax.pcolormesh(XX_front, YY_front, self.arr_front, cmap=self.cmap_front)
-        plt.colorbar(pmesh_front, label=self.cbar_label_front)
+        #plt.colorbar(pmesh_front, label=self.cbar_label_front, fraction=0.03, pad=0.02)
+        #fig.colorbar(pmesh_front, ax=ax, orientation='horizontal', label=self.cbar_label_front)#, fraction=0.046, pad=0.04)
 
         # Plot side.
         Y_side, Z_side = np.meshgrid(self.y_side, self.z_side)
@@ -174,7 +182,8 @@ class CuboidPlot:
             pmesh_side = ax.pcolormesh(XX_side, YY_side, self.arr_side, cmap=self.cmap_side, vmin=-umax, vmax=umax)
         else:
             pmesh_side = ax.pcolormesh(XX_side, YY_side, self.arr_side, cmap=self.cmap_side)
-        plt.colorbar(pmesh_side, label=self.cbar_label_side)
+        #plt.colorbar(pmesh_side, label=self.cbar_label_side, fraction=0.03, pad=0.02)
+        #fig.colorbar(pmesh_side, ax=ax, orientation='horizontal', label=self.cbar_label_side)#, fraction=0.046, pad=0.04)
 
         ax.set_aspect("equal")
         plt.axis("off")
@@ -194,14 +203,34 @@ class CuboidPlot:
         ax.plot(XX, YY, color="black", lw=1)
 
         # Add text
-        ax.text(0, -plot_H-1, "0")
-        ax.text(plot_L, -plot_H-1, f"{Lx}")
+        downshift = 0.3
+        ax.text(0, -plot_H-downshift, "0")
+        ax.text(plot_L, -plot_H-downshift, f"{Lx}")
 
         ax.text(-1.5, -plot_H, f"{Lz}")
 
         ax.text(1, plot_H, f"{Ly}")
 
-        plt.tight_layout()
+        ax.set_title(self.plot_title, pad=-20)
+
+        
+        # Top colorbar
+        cax_top = inset_axes(ax, width="50%", height="5%", loc="upper center", borderpad=-2.2)
+        cbar_top = fig.colorbar(pmesh_top, cax=cax_top, orientation='horizontal', label=self.cbar_label_top)
+        cbar_top.ax.xaxis.set_ticks_position('top')
+        cbar_top.ax.xaxis.set_label_position('top')
+
+
+        # Front colorbar
+        cax_front = inset_axes(ax, width="50%", height="5%", loc="lower left", borderpad=-2.2)
+        fig.colorbar(pmesh_front, cax=cax_front, orientation='horizontal', label=self.cbar_label_front)
+
+        # Side colorbar
+        cax_side = inset_axes(ax, width="25%", height="5%", loc="lower right", borderpad=-2.2)
+        fig.colorbar(pmesh_side, cax=cax_side, orientation='horizontal', label=self.cbar_label_side)
+
+
+        #plt.tight_layout()
         return fig
     
 

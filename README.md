@@ -57,4 +57,6 @@ plt.savefig("plots/cuboidplot.png", dpi=150)
 ```
 
 ## TODO
-- Make CuboidPlot colorbars smaller.
+- CuboidPlots cosmetic tweaks, e.g.
+    - better way to show physical dimensions of domain (e.g. arrows)
+    - better placement of colorbars and title(s)
