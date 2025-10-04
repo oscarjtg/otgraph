@@ -4,7 +4,7 @@ Python matplotlib wrappers
 ## Instructions
 
 ```python
-import otgraph.gragh as otg
+import otgraph.graph as otg
 import otgraph.video as vid
 ```
 
