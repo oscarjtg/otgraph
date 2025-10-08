@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
+import netCDF4 as nc
 
 class CuboidPlot:
     def __init__(self, x_top, y_top, arr_top, x_front, z_front, arr_front, y_side, z_side, arr_side):
@@ -235,4 +236,77 @@ class CuboidPlot:
     
 
 
-        
+def plot_vertical_profile_over_time_3d(file_path, time_str, z_str, var_str, xlabel_str, ylabel_str, cbar_str, x_str, x_val, subtract_initial, diverging):
+    """
+    Plots a heatmap depicting how the vertical profile of a variable evolves with time.
+    THe vertical profiles are taken at a given x-value, averaged across the y direction, at every time step.
+
+    Parameters
+    ----------
+    file_path (string)
+        A string that gives the absolute or relative path to the NetCDF file containing the data.
+
+    time_str (string)
+        A string that gives the name of the "time" variable in the NetCDF file.
+
+    z_str (string)
+        A string that gives the name of the "z" variable in the NetCDF file.
+
+    var_str (string)
+        A string that gives the name of the variable whose vertical profiles are to be plotted over time,
+        as given in the NetCDF file.
+
+    xlabel_str (string)
+        A string giving the label for the horizontal axis on the plot.
+
+    ylabel_str (string)
+        A string giving the label for the vertical axis on the plot.
+
+    cbar_str (string)
+        A string giving the label for the colorbar.
+
+    x_str (string)
+        A string giving the name of the "x" variable in the NetCDF file.
+
+    x_val (float)
+        A float giving the x-value at which the vertical profiles are to be sampled.
+
+    subtract_initial (bool)
+        A boolean value that says whether or not to subtract the profile at t=0 from all profiles.
+        If subtract_initial is True, the t=0 profile is subtracted from all the profiles.
+        Otherwise, this step is not carried out.
+
+    diverging (bool)
+        A boolean value that says whether or not the colorscale should be centred symmetrically on zero 
+        and a diverging colormap should be used.
+        If divering is True, the vmin and vmax parameters of plt.pcolormesh() are set symmetrically about zero
+        as the largest absolute value from all the vertical profiles, and the diverging colormap "RdBu_r" is used.
+        If divering is False, the default vmin, vmax, and colorbar are used.
+        TODO: add customisation of colorbar.
+
+    Returns
+    -------
+    (matplotlib.pyplot.figure, matplotlib.pyplot.axis)
+
+    """
+    with nc.Dataset(file_path, "r") as ncfile:
+        x = np.array(ncfile.variables[x_str][:])
+        x_idx = np.argmax(x > x_val)
+        time = np.array(ncfile.variables[time_str][:])
+        depth = np.array(ncfile.variables[z_str][:])
+        buoyancy = np.mean(np.array(ncfile.variables[var_str][:, :, :, x_idx]), axis=2)
+        if subtract_initial:
+            buoyancy_init = np.mean(np.array(ncfile.variables[var_str][0, :, :, x_idx]), axis=1)
+            buoyancy = buoyancy - buoyancy_init[np.newaxis, :]
+    
+    fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+    buoyancy = np.transpose(buoyancy)
+    if diverging:
+        vmax = np.max(np.abs(buoyancy))
+        pmesh = ax.pcolormesh(time, depth, buoyancy, vmin=-vmax, vmax=vmax, cmap="RdBu_r")
+    else:
+        pmesh = ax.pcolormesh(time, depth, buoyancy)
+    plt.colorbar(pmesh, ax=ax, label=cbar_str)
+    ax.set_xlabel(xlabel_str)
+    ax.set_ylabel(ylabel_str)
+    return fig, ax
