@@ -294,19 +294,23 @@ def plot_vertical_profile_over_time_3d(file_path, time_str, z_str, var_str, xlab
         x_idx = np.argmax(x > x_val)
         time = np.array(ncfile.variables[time_str][:])
         depth = np.array(ncfile.variables[z_str][:])
-        buoyancy = np.mean(np.array(ncfile.variables[var_str][:, :, :, x_idx]), axis=2)
+        var = np.mean(np.array(ncfile.variables[var_str][:, :, :, x_idx]), axis=2)
         if subtract_initial:
-            buoyancy_init = np.mean(np.array(ncfile.variables[var_str][0, :, :, x_idx]), axis=1)
-            buoyancy = buoyancy - buoyancy_init[np.newaxis, :]
+            var_init = np.mean(np.array(ncfile.variables[var_str][0, :, :, x_idx]), axis=1)
+            var = var - var_init[np.newaxis, :]
     
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    buoyancy = np.transpose(buoyancy)
+    var = np.transpose(var)
     if diverging:
-        vmax = np.max(np.abs(buoyancy))
-        pmesh = ax.pcolormesh(time, depth, buoyancy, vmin=-vmax, vmax=vmax, cmap="RdBu_r")
+        vmax = np.max(np.abs(var))
+        pmesh = ax.pcolormesh(time, depth, var, vmin=-vmax, vmax=vmax, cmap="RdBu_r")
     else:
-        pmesh = ax.pcolormesh(time, depth, buoyancy)
-    plt.colorbar(pmesh, ax=ax, label=cbar_str)
-    ax.set_xlabel(xlabel_str)
-    ax.set_ylabel(ylabel_str)
+        pmesh = ax.pcolormesh(time, depth, var)
+    cbar = plt.colorbar(pmesh, ax=ax)
+    cbar.set_label(cbar_str, fontsize=16)
+    cbar.ax.tick_params(labelsize=14)
+    ax.set_xlabel(xlabel_str, fontsize=16)
+    ax.set_ylabel(ylabel_str, fontsize=16)
+    ax.tick_params(labelsize=14)
     return fig, ax
+
